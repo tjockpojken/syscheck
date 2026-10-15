@@ -1,9 +1,10 @@
 #!/bin/bash
 #
-# sc_52_nexus_scep.sh
+# sc_52_scep.sh
 #
-# Tests SCEP (RFC 8894) certificate enrollment against a Nexus PGWY SCEP
-# endpoint: GetCACaps -> GetCACert -> PKCSReq (-> CertPoll) -> CertRep.
+# Tests SCEP (RFC 8894) certificate enrollment against any SCEP server
+# (e.g. a Nexus PGWY SCEP endpoint):
+# GetCACaps -> GetCACert -> PKCSReq (-> CertPoll) -> CertRep.
 #
 # The SCEP protocol work is done by lib/scep_client.py, which only needs
 # python3 (standard library) and the openssl CLI - no sscep, no pip packages.
@@ -12,7 +13,7 @@
 #   - expect success  (normal enrollment, optionally followed by a renewal
 #                      signed with the certificate that was just issued)
 #   - expect failure  (negative test, e.g. wrong challenge password - proves
-#                      that CM actually enforces the policy)
+#                      that the CA actually enforces the policy)
 
 SYSCHECK_HOME="${SYSCHECK_HOME:-/opt/syscheck}" # use default if unset
 if [ ! -f ${SYSCHECK_HOME}/syscheck.sh ] ; then
@@ -24,7 +25,7 @@ fi
 source $SYSCHECK_HOME/config/syscheck-scripts.conf
 
 # script name, used when integrating with nagios/icinga
-SCRIPTNAME=nexusscep
+SCRIPTNAME=scep
 
 # uniq ID of script (please use in the name of this file also for convinice for finding next availavle number)
 SCRIPTID=52
@@ -66,7 +67,7 @@ scep_enroll() {
   local IDX="$8"
 
   # %TS% in the subject is replaced with epoch seconds, so every run gets a
-  # unique DN (useful if CM rejects duplicate subjects)
+  # unique DN (useful if the CA rejects duplicate subjects)
   SUBJECT="${SUBJECT//%TS%/$(date +%s)}"
 
   # 1. python3 + client present?

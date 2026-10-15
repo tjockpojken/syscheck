@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# sc_51_nexus_acme.sh
+# sc_51_acme.sh
 #
-# Tests ACME (RFC 8555) certificate enrollment against a Nexus PGWY ACME
-# directory, using certbot in fully non-interactive mode. Forces a fresh
-# renewal every run so the http-01 challenge round-trip is actually
-# exercised each time (not skipped because "not yet due").
+# Tests ACME (RFC 8555) certificate enrollment against any ACME server
+# (e.g. a Nexus PGWY ACME directory), using certbot in fully non-interactive
+# mode. Forces a fresh renewal every run so the http-01 challenge round-trip
+# is actually exercised each time (not skipped because "not yet due").
 
 SYSCHECK_HOME="${SYSCHECK_HOME:-/opt/syscheck}" # use default if unset
 if [ ! -f ${SYSCHECK_HOME}/syscheck.sh ] ; then
@@ -17,7 +17,7 @@ fi
 source $SYSCHECK_HOME/config/syscheck-scripts.conf
 
 # script name, used when integrating with nagios/icinga
-SCRIPTNAME=nexusacme
+SCRIPTNAME=acme
 
 # uniq ID of script (please use in the name of this file also for convinice for finding next availavle number)
 SCRIPTID=51
@@ -110,7 +110,7 @@ acme_enroll() {
 for (( i = 0 ; i < ${#ACME_DOMAIN[@]} ; i++ )) ; do
   SCRIPTINDEX=$(addOneToIndex $SCRIPTINDEX)
 
-  printverbose "## Current test: PGWY ACME domain: ${ACME_DOMAIN[$i]} server: ${ACME_SERVER[$i]} -x ${SCRIPTINDEX}"
+  printverbose "## Current test: ACME domain: ${ACME_DOMAIN[$i]} server: ${ACME_SERVER[$i]} -x ${SCRIPTINDEX}"
   acme_enroll "${ACME_DOMAIN[$i]}" "${ACME_EMAIL[$i]}" "${ACME_SERVER[$i]}" "${ACME_EAB_KID[$i]}" "${ACME_EAB_HMACKEY[$i]}" "${ACME_HTTP_PORT[$i]}" "${SCRIPTINDEX}"
 done
 
